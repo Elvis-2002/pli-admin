@@ -1,0 +1,196 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Shared helpers ────────────────────────────────────────────────
+    // Only accounts you create yourself (Firebase console → Authentication
+    // → Users) can write anywhere. There is no public sign-up, so this is
+    // equivalent to "only trusted admins."
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    function isOptionalString(v, maxLen) {
+      return v == null || (v is string && v.size() <= maxLen);
+    }
+
+    function isNonEmptyString(v, maxLen) {
+      return v is string && v.size() > 0 && v.size() <= maxLen;
+    }
+
+    // Cloudinary public_ids are plain strings we generate ourselves on
+    // upload — cap the length as a sanity check, not a real limiter.
+    function isPublicId(v) {
+      return v == null || (v is string && v.size() <= 300);
+    }
+
+    // ── Gallery ──────────────────────────────────────────────────────
+    // Public reads (the website displays these); writes only from the
+    // admin app's GalleryManager, shaped exactly like it writes them.
+    match /gallery/{itemId} {
+      allow read: if true;
+
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['publicId', 'resourceType', 'caption', 'createdAt'])
+        && request.resource.data.keys().hasAll(['publicId', 'resourceType', 'createdAt'])
+        && isNonEmptyString(request.resource.data.publicId, 300)
+        && request.resource.data.resourceType in ['image', 'video']
+        && isOptionalString(request.resource.data.get('caption', null), 500)
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['publicId', 'resourceType', 'caption', 'createdAt'])
+        && isNonEmptyString(request.resource.data.publicId, 300)
+        && request.resource.data.resourceType in ['image', 'video']
+        && isOptionalString(request.resource.data.get('caption', null), 500)
+        && request.resource.data.createdAt == resource.data.createdAt; // immutable
+
+      allow delete: if isAdmin();
+    }
+
+    // ── Site settings (contact details) ─────────────────────────────
+    // Deliberately restricted to a single document, settings/site, so
+    // this collection can never become a dumping ground for arbitrary
+    // data even by a signed-in admin's mistaken client code.
+    match /settings/{docId} {
+      allow read: if true;
+
+      allow create, update: if isAdmin()
+        && docId == 'site'
+        && request.resource.data.keys().hasOnly(['phone', 'email', 'location', 'updatedAt'])
+        && isOptionalString(request.resource.data.get('phone', null), 40)
+        && isOptionalString(request.resource.data.get('email', null), 200)
+        && isOptionalString(request.resource.data.get('location', null), 200);
+
+      allow delete: if isAdmin() && docId == 'site';
+    }
+
+    // ── Team (founders / members) ───────────────────────────────────
+    match /team/{memberId} {
+      allow read: if true;
+
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['name', 'role', 'bio', 'photoPublicId', 'isVisionBearer', 'createdAt'])
+        && request.resource.data.keys().hasAll(['name', 'role', 'createdAt'])
+        && isNonEmptyString(request.resource.data.name, 150)
+        && isNonEmptyString(request.resource.data.role, 150)
+        && isOptionalString(request.resource.data.get('bio', null), 1000)
+        && isPublicId(request.resource.data.get('photoPublicId', null))
+        && (request.resource.data.get('isVisionBearer', null) == null || request.resource.data.isVisionBearer is bool)
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['name', 'role', 'bio', 'photoPublicId', 'isVisionBearer', 'createdAt'])
+        && isNonEmptyString(request.resource.data.name, 150)
+        && isNonEmptyString(request.resource.data.role, 150)
+        && isOptionalString(request.resource.data.get('bio', null), 1000)
+        && isPublicId(request.resource.data.get('photoPublicId', null))
+        && (request.resource.data.get('isVisionBearer', null) == null || request.resource.data.isVisionBearer is bool)
+        && request.resource.data.createdAt == resource.data.createdAt; // immutable
+
+      allow delete: if isAdmin();
+    }
+
+    // ── Program photos ───────────────────────────────────────────────
+    // One document per program slug (fixed set defined in each app's
+    // programs list), holding just a Cloudinary photo reference.
+    match /programPhotos/{slug} {
+      allow read: if true;
+
+      allow write: if isAdmin()
+        && request.resource.data.keys().hasOnly(['photoPublicId'])
+        && isPublicId(request.resource.data.get('photoPublicId', null));
+    }
+
+    // ── Events ───────────────────────────────────────────────────────
+    match /events/{eventId} {
+      allow read: if true;
+
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['title', 'date', 'location', 'description', 'createdAt'])
+        && request.resource.data.keys().hasAll(['title', 'date', 'createdAt'])
+        && isNonEmptyString(request.resource.data.title, 150)
+        && isNonEmptyString(request.resource.data.date, 20)
+        && isOptionalString(request.resource.data.get('location', null), 200)
+        && isOptionalString(request.resource.data.get('description', null), 1000)
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['title', 'date', 'location', 'description', 'createdAt'])
+        && isNonEmptyString(request.resource.data.title, 150)
+        && isNonEmptyString(request.resource.data.date, 20)
+        && isOptionalString(request.resource.data.get('location', null), 200)
+        && isOptionalString(request.resource.data.get('description', null), 1000)
+        && request.resource.data.createdAt == resource.data.createdAt; // immutable
+
+      allow delete: if isAdmin();
+    }
+
+    // ── Prayer requests ──────────────────────────────────────────────
+    // The one collection anyone (no login) can WRITE to, since visitors
+    // submit these directly from the public site — kept as safe as
+    // possible by strictly validating shape, and public writes can only
+    // ever CREATE (never update or delete) a request, so a visitor can
+    // never edit or remove someone else's submission.
+    match /prayerRequests/{requestId} {
+      allow read: if true;
+
+      allow create: if request.resource.data.keys().hasOnly(['name', 'request', 'createdAt'])
+        && request.resource.data.keys().hasAll(['request', 'createdAt'])
+        && isNonEmptyString(request.resource.data.request, 800)
+        && isOptionalString(request.resource.data.get('name', null), 100)
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // ── Stories (children / families we support) ────────────────────
+    // Extra safeguard beyond the admin UI: a story can never be marked
+    // published unless consentConfirmed is explicitly true, enforced
+    // here server-side so it can't be bypassed by calling Firestore
+    // directly instead of going through the app's form.
+    match /stories/{storyId} {
+      allow read: if true;
+
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(
+             ['name', 'age', 'program', 'summary', 'photoPublicId', 'consentConfirmed', 'published', 'createdAt']
+           )
+        && request.resource.data.keys().hasAll(
+             ['name', 'summary', 'consentConfirmed', 'published', 'createdAt']
+           )
+        && isNonEmptyString(request.resource.data.name, 80)
+        && isNonEmptyString(request.resource.data.summary, 2000)
+        && isOptionalString(request.resource.data.get('program', null), 150)
+        && (request.resource.data.get('age', null) == null || (request.resource.data.age is int && request.resource.data.age >= 0 && request.resource.data.age <= 120))
+        && isPublicId(request.resource.data.get('photoPublicId', null))
+        && request.resource.data.consentConfirmed is bool
+        && request.resource.data.published is bool
+        && (request.resource.data.published == false || request.resource.data.consentConfirmed == true)
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if isAdmin()
+        && request.resource.data.keys().hasOnly(
+             ['name', 'age', 'program', 'summary', 'photoPublicId', 'consentConfirmed', 'published', 'createdAt']
+           )
+        && isNonEmptyString(request.resource.data.name, 80)
+        && isNonEmptyString(request.resource.data.summary, 2000)
+        && isOptionalString(request.resource.data.get('program', null), 150)
+        && (request.resource.data.get('age', null) == null || (request.resource.data.age is int && request.resource.data.age >= 0 && request.resource.data.age <= 120))
+        && isPublicId(request.resource.data.get('photoPublicId', null))
+        && request.resource.data.consentConfirmed is bool
+        && request.resource.data.published is bool
+        && (request.resource.data.published == false || request.resource.data.consentConfirmed == true)
+        && request.resource.data.createdAt == resource.data.createdAt; // immutable
+
+      allow delete: if isAdmin();
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

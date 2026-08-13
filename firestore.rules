@@ -1,0 +1,27 @@
+// ⚠️ TEST MODE — expires 2026-09-10.
+//
+// This allows ANYONE on the internet to read AND write your entire
+// database, with no login required. It's fine for early development
+// while you're the only one touching it, but:
+//
+//   1. Do NOT add any real Stories (children's names/photos) or other
+//      real data while this is active — it is publicly writable and
+//      publicly readable by anyone who finds your project.
+//   2. Switch to the hardened rules in firestore.production.rules
+//      BEFORE the public site goes live, and before adding any real
+//      content. To switch: copy firestore.production.rules over this
+//      file (or run the deploy command below pointed at it), then:
+//        firebase deploy --only firestore:rules
+//   3. After 2026-09-10 this ruleset stops allowing anything at all
+//      (Firestore's built-in safety net for exactly this situation) —
+//      so the switch isn't optional, just a matter of when.
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.time < timestamp.date(2026, 9, 10);
+    }
+  }
+}

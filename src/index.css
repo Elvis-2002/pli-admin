@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap");
+
+@theme {
+  --color-ink: #211f1a;
+  --color-navy: #142255;
+  --color-navy-2: #1c2f74;
+  --color-sky: #1c96d6;
+  --color-sky-light: #cdeafb;
+  --color-crimson: #c22a3a;
+  --color-sand: #fbf7ef;
+  --color-sand-2: #f3ecdd;
+  --color-gold: #d99a3d;
+  --color-cream: #fffdf8;
+
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+body {
+  background-color: var(--color-sand);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  /* respect iPhone notch/home-indicator when installed as a PWA */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+
+.font-eyebrow {
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-crimson);
+  outline-offset: 3px;
+}
