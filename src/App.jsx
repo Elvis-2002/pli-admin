@@ -16,22 +16,100 @@ export default function App() {
   return (
     <AuthProvider>
       <Routes>
+        {/* Login */}
         <Route path="/login" element={<Login />} />
+
+        {/* Dashboard */}
         <Route
-          path="/*"
+          path="/"
           element={
             <ProtectedRoute>
               <Layout>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/gallery" element={<GalleryManager />} />
-                  <Route path="/programs" element={<ProgramsManager />} />
-                  <Route path="/team" element={<TeamManager />} />
-                  <Route path="/stories" element={<StoriesManager />} />
-                  <Route path="/events" element={<EventsManager />} />
-                  <Route path="/prayer-requests" element={<PrayerRequestsManager />} />
-                  <Route path="/settings" element={<Settings />} />
-                </Routes>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Gallery */}
+        <Route
+          path="/gallery"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <GalleryManager />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Programs */}
+        <Route
+          path="/programs"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ProgramsManager />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Team */}
+        <Route
+          path="/team"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <TeamManager />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Stories */}
+        <Route
+          path="/stories"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <StoriesManager />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Events */}
+        <Route
+          path="/events"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <EventsManager />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Prayer Requests */}
+        <Route
+          path="/prayer-requests"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <PrayerRequestsManager />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Settings */}
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Settings />
               </Layout>
             </ProtectedRoute>
           }
