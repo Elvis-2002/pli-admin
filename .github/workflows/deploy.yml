@@ -27,6 +27,16 @@ jobs:
           cache: npm
 
       - run: npm ci
+            - name: Check Cloudinary configuration
+        env:
+          CLOUDINARY_NAME: ${{ secrets.VITE_CLOUDINARY_CLOUD_NAME }}
+        run: |
+          if [ -z "$CLOUDINARY_NAME" ]; then
+            echo "Cloudinary cloud name is EMPTY"
+            exit 1
+          else
+            echo "Cloudinary cloud name is present"
+          fi
 
       - name: Check Firebase API key
         env:
