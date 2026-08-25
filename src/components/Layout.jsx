@@ -3,6 +3,8 @@ import { useAuth } from "../context/AuthContext";
 
 const links = [
   { to: "/", label: "Dashboard", end: true },
+  { to: "/hero-slides", label: "Hero Slides" },
+  { to: "/church-needs", label: "Church Needs" },
   { to: "/gallery", label: "Gallery" },
   { to: "/programs", label: "Programs" },
   { to: "/team", label: "Team" },
@@ -26,17 +28,11 @@ export default function Layout({ children }) {
       <header className="sticky top-0 z-40 border-b border-black/5 bg-cream/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3">
           <div className="flex items-center gap-3">
-            <img
-              src="/pli-admin/icon-192.png"
-              alt="PLI Admin"
-              className="h-8 w-8 rounded-sm"
-            />
-
+            <img src="/icon-192.png" alt="" className="h-8 w-8 rounded-sm" />
             <span className="font-display text-base font-semibold text-navy">
               PLI Admin
             </span>
           </div>
-
           <button
             onClick={handleLogout}
             className="font-eyebrow text-[11px] text-navy/50 hover:text-crimson"
@@ -44,13 +40,12 @@ export default function Layout({ children }) {
             Sign Out
           </button>
         </div>
-
         <nav className="mx-auto flex max-w-5xl gap-6 overflow-x-auto px-5">
-          {links.map((link) => (
+          {links.map((l) => (
             <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.end}
+              key={l.to}
+              to={l.to}
+              end={l.end}
               className={({ isActive }) =>
                 `whitespace-nowrap border-b-2 py-3 font-eyebrow text-xs tracking-widest ${
                   isActive
@@ -59,7 +54,7 @@ export default function Layout({ children }) {
                 }`
               }
             >
-              {link.label}
+              {l.label}
             </NavLink>
           ))}
         </nav>
@@ -67,11 +62,8 @@ export default function Layout({ children }) {
 
       <main className="mx-auto max-w-5xl px-5 py-8">
         {user && (
-          <p className="mb-6 text-xs text-ink/40">
-            Signed in as {user.email}
-          </p>
+          <p className="mb-6 text-xs text-ink/40">Signed in as {user.email}</p>
         )}
-
         {children}
       </main>
     </div>

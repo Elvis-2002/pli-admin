@@ -5,6 +5,8 @@ import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import GalleryManager from "./pages/GalleryManager";
+import HeroSlidesManager from "./pages/HeroSlidesManager";
+import ChurchNeedsManager from "./pages/ChurchNeedsManager";
 import ProgramsManager from "./pages/ProgramsManager";
 import TeamManager from "./pages/TeamManager";
 import StoriesManager from "./pages/StoriesManager";
@@ -16,100 +18,24 @@ export default function App() {
   return (
     <AuthProvider>
       <Routes>
-        {/* Login */}
         <Route path="/login" element={<Login />} />
-
-        {/* Dashboard */}
         <Route
-          path="/"
+          path="/*"
           element={
             <ProtectedRoute>
               <Layout>
-                <Dashboard />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Gallery */}
-        <Route
-          path="/gallery"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <GalleryManager />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Programs */}
-        <Route
-          path="/programs"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <ProgramsManager />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Team */}
-        <Route
-          path="/team"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <TeamManager />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Stories */}
-        <Route
-          path="/stories"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <StoriesManager />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Events */}
-        <Route
-          path="/events"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <EventsManager />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Prayer Requests */}
-        <Route
-          path="/prayer-requests"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <PrayerRequestsManager />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Settings */}
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Settings />
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/hero-slides" element={<HeroSlidesManager />} />
+                  <Route path="/church-needs" element={<ChurchNeedsManager />} />
+                  <Route path="/gallery" element={<GalleryManager />} />
+                  <Route path="/programs" element={<ProgramsManager />} />
+                  <Route path="/team" element={<TeamManager />} />
+                  <Route path="/stories" element={<StoriesManager />} />
+                  <Route path="/events" element={<EventsManager />} />
+                  <Route path="/prayer-requests" element={<PrayerRequestsManager />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Routes>
               </Layout>
             </ProtectedRoute>
           }
