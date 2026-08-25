@@ -112,9 +112,9 @@ export default function ChurchNeedsManager() {
 
   return (
     <div>
-      <p className="font-eyebrow text-xs text-crimson">Church Needs</p>
+        <p className="font-eyebrow text-xs text-crimson">Organization Needs</p>   
       <h1 className="mt-1 font-display text-2xl font-semibold text-navy">
-        What the Church Needs
+        What the Organization Needs
       </h1>
       <p className="mt-2 max-w-lg text-sm text-ink/60">
         Post a specific need — a photo, a short title, and a couple of
